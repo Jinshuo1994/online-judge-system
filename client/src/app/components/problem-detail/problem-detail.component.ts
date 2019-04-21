@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
+import { Problem } from "../../models/problem.modal";
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
   selector: 'app-problem-detail',
@@ -7,9 +9,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ProblemDetailComponent implements OnInit {
 
-  constructor() { }
+  problem: Problem;
+  constructor(
+    @Inject("data") private data,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
+    this.route.params.subscribe(param => {
+      this.problem = this.data.getProblem(+param["id"]);
+    });
   }
 
 }
