@@ -12,5 +12,9 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use("/", indexRouter);
 app.use("/api/v1/", resRouter);
 
+app.use(function(req, res) {
+    res.sendFile("index.html", { root: path.join(__dirname, '../public/') });
+});
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
