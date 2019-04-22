@@ -15,7 +15,7 @@ var getProblems = function() {
 var getProblem = function(id) {
     return new Promise((res, rej) => {
         ProblemModel.findOne({id: id}, function(err, problems) {
-            if (error) {
+            if (err) {
                 rej(err);
             } else {
                 res(problems)
