@@ -12,6 +12,7 @@ import { AuthService } from "./services/auth.service";
 import { ProblemDetailComponent } from './components/problem-detail/problem-detail.component';
 import { NewProblemComponent } from './components/new-problem/new-problem.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { NavbarComponent } from './components/navbar/navbar.component';
     ProblemListComponent,
     ProblemDetailComponent,
     NewProblemComponent,
-    NavbarComponent
+    NavbarComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,

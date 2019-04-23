@@ -1,9 +1,13 @@
+
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-// import * as auth0 from 'auth0-js';
+import { Http, Response, Headers } from "@angular/http";
+import 'rxjs/add/operator/toPromise'
 
 declare var auth0: any;
 
+const CLIENT_ID = 'DwMqO9K22SIfe61zBZGgfAHa36JH9Mp4';
+const DOMAIN = 'super-collaborative-oj.auth0.com';
 @Injectable()
 export class AuthService {
 
@@ -12,14 +16,14 @@ export class AuthService {
   private _expiresAt: number;
 
   auth0 = new auth0.WebAuth({
-    clientID: 'DwMqO9K22SIfe61zBZGgfAHa36JH9Mp4',
-    domain: 'super-collaborative-oj.auth0.com',
+    clientID: CLIENT_ID,
+    domain: DOMAIN,
     responseType: 'token id_token',
     redirectUri: 'http://localhost:3003/',
-    scope: 'openid'
+    scope: 'openid profile email'
   });
 
-  constructor(public router: Router) {
+  constructor(public router: Router, public http: Http) {
     this._idToken = '';
     this._accessToken = '';
     this._expiresAt = 0;
@@ -37,17 +41,21 @@ export class AuthService {
     this.auth0.authorize();
   }
 
-  public handleAuthentication(): void {
-    this.auth0.parseHash((err, authResult) => {
-      if (authResult && authResult.accessToken && authResult.idToken) {
-        this.localLogin(authResult);
-        this.router.navigate(['/home']);
-      } else if (err) {
-        this.router.navigate(['/home']);
-        console.log(err);
-        alert(`Error: ${err.error}. Check the console for further details.`);
-      }
-    });
+  public handleAuthentication(): Promise<any> {
+    return new Promise((res, rej) => {
+      this.auth0.parseHash((err, authResult) => {
+        if (authResult && authResult.accessToken && authResult.idToken) {
+          window.location.hash = '';
+          this.localLogin(authResult);
+          res(authResult);
+          //this.router.navigate(['/home']);
+        } else if (err) {
+          this.router.navigate(['/home']);
+          rej(err);
+        }
+      });
+    })
+
   }
 
   private localLogin(authResult): void {
@@ -86,4 +94,42 @@ export class AuthService {
     return this._accessToken && Date.now() < this._expiresAt;
   }
 
+
+  public getProfile(cb): void {
+    if (!this._accessToken) {
+      throw new Error('Access token must exist to fetch profile');
+    }
+
+    const self: any = this;
+    this.auth0.client.userInfo(this._accessToken, (err, profile) => {
+      if (profile) {
+        self.userProfile = profile;
+        console.log(profile);
+      }
+      cb(err, profile);
+    });
+  }
+
+  public resetPassword(): void {
+    const self: any = this;
+    let profile = self.userProfile;
+    let url = `https://${DOMAIN}/dbconnections/change_password`;
+    let headers = new Headers({'content-type': 'application/json'})
+    let body = { client_id: `${CLIENT_ID}`,
+        email: profile.email,
+        connection: 'Username-Password-Authentication' ,
+        json: true };
+
+    this.http.post(url, body, headers)
+      .toPromise()
+      .then((res: Response) => {
+        console.log(res)
+      })
+      .catch(this.handleError);
+
 }
+
+  private handleError(error: any): Promise<any> {
+    console.log("Error occurred", error);
+    return Promise.reject(error.message || error);
+  }}

@@ -2,7 +2,6 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { Problem } from "../../models/problem.model"
 import {Subscription} from "rxjs";
 
-
 @Component({
   selector: 'app-problem-list',
   templateUrl: `./problem-list.component.html`,
