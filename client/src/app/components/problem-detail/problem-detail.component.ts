@@ -10,6 +10,8 @@ import { ActivatedRoute } from "@angular/router";
 export class ProblemDetailComponent implements OnInit {
 
   problem: Problem;
+
+
   constructor(
     @Inject("data") private data,
     private route: ActivatedRoute
