@@ -58,7 +58,7 @@ export class EditorComponent implements OnInit {
     document.getElementsByTagName('textarea')[0].focus()
 
 
-    this.collaboration.init();
+    this.collaboration.init(this.editor, this.sessionId);
     this.editor.lastAppliedChange = null;
 
     this.editor.on('change', (e) => {
