@@ -1,5 +1,8 @@
 import { Component, OnInit, Inject } from '@angular/core';
 
+import { ActivatedRoute, Params} from '@angular/router';
+
+
 declare var ace: any;
 
 @Component({
@@ -9,6 +12,7 @@ declare var ace: any;
 })
 export class EditorComponent implements OnInit {
 
+  sessionId: string;
   editor: any;
   public languages: string[] = ['Java', 'C++', 'Python'];
   language: string = 'Java';
@@ -29,17 +33,40 @@ export class EditorComponent implements OnInit {
     `
   }
 
-  constructor(@Inject('collaboration') private collaboration) {
+  constructor(@Inject('collaboration') private collaboration,
+              private route: ActivatedRoute) {
 
   }
 
   ngOnInit() {
+
+    this.route.params
+      .subscribe(params => {
+        this.sessionId = params['id'];
+        this.initEditor();
+      })
+
+
+  }
+
+  initEditor(): void {
     this.editor = ace.edit('editor');
     this.editor.setTheme('ace/theme/eclipse');
     this.editor.getSession().setMode('ace/mode/java');
     this.editor.setValue(this.defaultContent['Java']);
     this.editor.$blockScrolling = Infinity;
+    document.getElementsByTagName('textarea')[0].focus()
+
+
     this.collaboration.init();
+    this.editor.lastAppliedChange = null;
+
+    this.editor.on('change', (e) => {
+      console.log('editor changes: ' + JSON.stringify(e));
+      if (this.editor.lastAppliedChange != e) {
+        this.collaboration.change(JSON.stringify(e));
+      }
+    })
   }
 
   setLanguage(language: string): void {
